@@ -1,0 +1,157 @@
+﻿@page "/patients/create"
+@using MediTrack.BlazorWASM.Models
+@using MediTrack.BlazorWASM.Services
+@inject IPatientService PatientService
+@inject NavigationManager Navigation
+
+<h2>Nuevo Paciente</h2>
+
+<EditForm Model="@patient" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="firstName" class="form-label">Nombre</label>
+                <InputText id="firstName" class="form-control" @bind-Value="patient.FirstName" />
+                <ValidationMessage For="@(() => patient.FirstName)" />
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="lastName" class="form-label">Apellido</label>
+                <InputText id="lastName" class="form-control" @bind-Value="patient.LastName" />
+                <ValidationMessage For="@(() => patient.LastName)" />
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <InputText id="email" class="form-control" @bind-Value="patient.Email" />
+                <ValidationMessage For="@(() => patient.Email)" />
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="phone" class="form-label">Teléfono</label>
+                <InputText id="phone" class="form-control" @bind-Value="patient.PhoneNumber" />
+                <ValidationMessage For="@(() => patient.PhoneNumber)" />
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="mb-3">
+                <label for="identification" class="form-label">Cédula</label>
+                <InputText id="identification" class="form-control" @bind-Value="patient.IdentificationNumber" />
+                <ValidationMessage For="@(() => patient.IdentificationNumber)" />
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="mb-3">
+                <label for="birthdate" class="form-label">Fecha de Nacimiento</label>
+                <InputDate id="birthdate" class="form-control" @bind-Value="patient.DateOfBirth" />
+                <ValidationMessage For="@(() => patient.DateOfBirth)" />
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="mb-3">
+                <label for="gender" class="form-label">Género</label>
+                <InputSelect id="gender" class="form-select" @bind-Value="patient.Gender">
+                    <option value="">Seleccionar...</option>
+                    <option value="Male">Masculino</option>
+                    <option value="Female">Femenino</option>
+                    <option value="Other">Otro</option>
+                </InputSelect>
+                <ValidationMessage For="@(() => patient.Gender)" />
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="height" class="form-label">Altura (cm)</label>
+                <InputNumber id="height" class="form-control" @bind-Value="patient.Height" />
+                <ValidationMessage For="@(() => patient.Height)" />
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="weight" class="form-label">Peso (kg)</label>
+                <InputNumber id="weight" class="form-control" @bind-Value="patient.Weight" />
+                <ValidationMessage For="@(() => patient.Weight)" />
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label for="allergies" class="form-label">Alergias</label>
+        <InputTextArea id="allergies" class="form-control" @bind-Value="patient.Allergies" rows="2" />
+    </div>
+
+    <div class="mb-3">
+        <label for="medicalHistory" class="form-label">Historial Médico</label>
+        <InputTextArea id="medicalHistory" class="form-control" @bind-Value="patient.MedicalHistory" rows="3" />
+    </div>
+
+    <h4>Dirección</h4>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="mb-3">
+                <label for="street" class="form-label">Calle</label>
+                <InputText id="street" class="form-control" @bind-Value="patient.Address.Street" />
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="mb-3">
+                <label for="city" class="form-label">Ciudad</label>
+                <InputText id="city" class="form-control" @bind-Value="patient.Address.City" />
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="mb-3">
+                <label for="state" class="form-label">Estado/Provincia</label>
+                <InputText id="state" class="form-control" @bind-Value="patient.Address.State" />
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="mb-3">
+                <label for="postalCode" class="form-label">Código Postal</label>
+                <InputText id="postalCode" class="form-control" @bind-Value="patient.Address.PostalCode" />
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="mb-3">
+                <label for="country" class="form-label">País</label>
+                <InputText id="country" class="form-control" @bind-Value="patient.Address.Country" />
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <button type="button" class="btn btn-secondary ms-2" @onclick="() => Navigation.NavigateTo("/patients")">Cancelar</button>
+    </div>
+</EditForm>
+
+@code {
+    private PatientModel patient = new();
+
+    private async Task HandleValidSubmit()
+    {
+        var result = await PatientService.CreatePatientAsync(patient);
+        if (result != null)
+        {
+            Navigation.NavigateTo("/patients");
+        }
+    }
+}
