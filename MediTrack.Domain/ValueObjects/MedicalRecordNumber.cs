@@ -4,6 +4,11 @@ public class MedicalRecordNumber
 {
     public string Value { get; private set; }
 
+    public MedicalRecordNumber()
+    {
+        Value = GenerateValue();
+    }
+
     public MedicalRecordNumber(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
@@ -11,12 +16,12 @@ public class MedicalRecordNumber
         Value = value;
     }
 
-    public static MedicalRecordNumber Generate()
+    private static string GenerateValue()
     {
         var random = new Random();
         var year = DateTime.Now.Year.ToString().Substring(2);
         var number = random.Next(10000, 99999).ToString();
-        return new MedicalRecordNumber($"MR-{year}-{number}");
+        return $"MR-{year}-{number}";
     }
 
     public override string ToString() => Value;

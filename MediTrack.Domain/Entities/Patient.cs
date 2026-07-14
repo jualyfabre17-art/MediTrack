@@ -7,10 +7,10 @@ namespace MediTrack.Domain.Entities;
 public class Patient : Person
 {
     public string IdentificationNumber { get; set; } = string.Empty;
-    public MedicalRecordNumber MedicalRecordNumber { get; set; } = new MedicalRecordNumber("MR-2024-00001");
+    public MedicalRecordNumber MedicalRecordNumber { get; set; } = new MedicalRecordNumber();
     public BloodType BloodType { get; set; }
-    public double Height { get; set; } 
-    public double Weight { get; set; } 
+    public double Height { get; set; } // in cm
+    public double Weight { get; set; } // in kg
     public string Allergies { get; set; } = string.Empty;
     public string MedicalHistory { get; set; } = string.Empty;
     public string EmergencyContactName { get; set; } = string.Empty;
