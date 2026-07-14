@@ -5,6 +5,7 @@ using MediTrack.Domain.Interfaces;
 using MediTrack.Application.Interfaces;
 using MediTrack.Application.Services;
 using MediTrack.Infrastructure.Repositories;
+using MediTrack.API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,8 +19,11 @@ builder.Services.AddDbContext<MediTrackDbContext>(options =>
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(BaseRepository<>));
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
+builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 
 builder.Services.AddScoped<IPatientService, PatientService>();
+builder.Services.AddScoped<IDoctorService, DoctorService>();
+builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 
 builder.Services.AddCors(options =>
 {
@@ -42,6 +46,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors("AllowBlazorWASM");
+
+app.UseMiddleware<ErrorHandlingMiddleware>();
+
 app.UseAuthorization();
 app.MapControllers();
 

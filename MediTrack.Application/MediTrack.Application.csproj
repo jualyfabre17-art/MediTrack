@@ -16,7 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DTOs\Doctor\" />
     <Folder Include="DTOs\MedicalRecord\" />
   </ItemGroup>
 
