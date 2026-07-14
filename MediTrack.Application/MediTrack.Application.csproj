@@ -8,10 +8,16 @@
 
   <ItemGroup>
     <PackageReference Include="FluentValidation" Version="12.1.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.9" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\MediTrack.Domain\MediTrack.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="DTOs\Doctor\" />
+    <Folder Include="DTOs\MedicalRecord\" />
   </ItemGroup>
 
 </Project>

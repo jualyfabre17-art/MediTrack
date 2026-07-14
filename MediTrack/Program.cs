@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using MediTrack.Infrastructure.Context;
 using MediTrack.Infrastructure.Core;
 using MediTrack.Domain.Interfaces;
+using MediTrack.Application.Interfaces;
+using MediTrack.Application.Services;
 using MediTrack.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,7 +18,8 @@ builder.Services.AddDbContext<MediTrackDbContext>(options =>
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(BaseRepository<>));
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
-builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+
+builder.Services.AddScoped<IPatientService, PatientService>();
 
 builder.Services.AddCors(options =>
 {
