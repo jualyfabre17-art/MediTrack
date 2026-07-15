@@ -55,7 +55,7 @@ public class PatientUpdateValidator : AbstractValidator<PatientUpdateDto>
             return true;
 
         var exists = await _unitOfWork.Patients
-            .ExistsAsync(p => p.IdentificationNumber == identificationNumber);
+            .ExistsAsync(p => p.IdentificationNumber == identificationNumber && p.Id != 0);
         return !exists;
     }
 

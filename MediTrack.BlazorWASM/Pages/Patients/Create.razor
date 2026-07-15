@@ -1,0 +1,199 @@
+﻿@page "/patients/create"
+@using MediTrack.BlazorWASM.Models
+@using MediTrack.BlazorWASM.Services
+@inject IPatientService PatientService
+@inject NavigationManager Navigation
+
+<div class="container my-4" style="max-width: 900px;">
+    <!-- Botón superior para volver -->
+    <div class="mb-3">
+        <button type="button" class="btn btn-link text-decoration-none p-0 d-inline-flex align-items-center gap-1 text-secondary" @onclick="VolverAListado">
+            <i class="bi bi-arrow-left"></i> Volver al listado de pacientes
+        </button>
+    </div>
+
+    <!-- Encabezado de la página -->
+    <div class="mb-4">
+        <h2 class="fw-bold text-dark mb-1">
+            <i class="bi bi-person-plus-fill text-primary me-2"></i>Registrar Nuevo Paciente
+        </h2>
+        <p class="text-muted mb-0">Completa los datos del expediente clínico para dar de alta al paciente en el sistema.</p>
+    </div>
+
+    <!-- Formulario Principal -->
+    <EditForm Model="@patient" OnValidSubmit="@HandleValidSubmit">
+        <DataAnnotationsValidator />
+
+        <!-- Alerta de Errores de Validación (Reemplazo elegante de ValidationSummary) -->
+        <div class="mb-4">
+            <ValidationSummary class="alert alert-danger d-flex flex-column gap-1 rounded-3 fs-7 shadow-xs border-0 border-start border-danger border-3" />
+        </div>
+
+        <div class="d-flex flex-column gap-4">
+
+            <!-- SECCIÓN 1: Información Personal y de Contacto -->
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="card-title mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                        <i class="bi bi-person-badge text-primary"></i>Datos Personales y Contacto
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="firstName" class="form-label fw-semibold text-secondary fs-7">Nombre</label>
+                            <InputText id="firstName" class="form-control py-2 shadow-none" placeholder="Ej. Juan" @bind-Value="patient.FirstName" />
+                            <ValidationMessage For="@(() => patient.FirstName)" class="text-danger fs-8 mt-1" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="lastName" class="form-label fw-semibold text-secondary fs-7">Apellido</label>
+                            <InputText id="lastName" class="form-control py-2 shadow-none" placeholder="Ej. Pérez" @bind-Value="patient.LastName" />
+                            <ValidationMessage For="@(() => patient.LastName)" class="text-danger fs-8 mt-1" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="email" class="form-label fw-semibold text-secondary fs-7">Correo Electrónico</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-envelope"></i></span>
+                                <InputText id="email" class="form-control py-2 shadow-none border-start-0" placeholder="juan.perez@email.com" @bind-Value="patient.Email" />
+                            </div>
+                            <ValidationMessage For="@(() => patient.Email)" class="text-danger fs-8 mt-1" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="phone" class="form-label fw-semibold text-secondary fs-7">Teléfono de Contacto</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-telephone"></i></span>
+                                <InputText id="phone" class="form-control py-2 shadow-none border-start-0" placeholder="809-555-0199" @bind-Value="patient.PhoneNumber" />
+                            </div>
+                            <ValidationMessage For="@(() => patient.PhoneNumber)" class="text-danger fs-8 mt-1" />
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="identification" class="form-label fw-semibold text-secondary fs-7">Cédula / Documento de Identidad</label>
+                            <InputText id="identification" class="form-control py-2 shadow-none" placeholder="001-0000000-0" @bind-Value="patient.IdentificationNumber" />
+                            <ValidationMessage For="@(() => patient.IdentificationNumber)" class="text-danger fs-8 mt-1" />
+                        </div>
+                        <div class="col-md-4">
+                            <label for="birthdate" class="form-label fw-semibold text-secondary fs-7">Fecha de Nacimiento</label>
+                            <InputDate id="birthdate" class="form-control py-2 shadow-none" @bind-Value="patient.DateOfBirth" />
+                            <ValidationMessage For="@(() => patient.DateOfBirth)" class="text-danger fs-8 mt-1" />
+                        </div>
+                        <div class="col-md-4">
+                            <label for="gender" class="form-label fw-semibold text-secondary fs-7">Género</label>
+                            <InputSelect id="gender" class="form-select py-2 shadow-none" @bind-Value="patient.Gender">
+                                <option value="">Seleccionar...</option>
+                                <option value="Male">Masculino</option>
+                                <option value="Female">Femenino</option>
+                                <option value="Other">Otro</option>
+                            </InputSelect>
+                            <ValidationMessage For="@(() => patient.Gender)" class="text-danger fs-8 mt-1" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECCIÓN 2: Información Física y Médica -->
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="card-title mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                        <i class="bi bi-heart-pulse text-success"></i>Ficha y Parámetros Médicos
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="height" class="form-label fw-semibold text-secondary fs-7">Altura (cm)</label>
+                            <div class="input-group">
+                                <InputNumber id="height" class="form-control py-2 shadow-none border-end-0" @bind-Value="patient.Height" />
+                                <span class="input-group-text bg-light text-muted border-start-0">cm</span>
+                            </div>
+                            <ValidationMessage For="@(() => patient.Height)" class="text-danger fs-8 mt-1" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="weight" class="form-label fw-semibold text-secondary fs-7">Peso (kg)</label>
+                            <div class="input-group">
+                                <InputNumber id="weight" class="form-control py-2 shadow-none border-end-0" @bind-Value="patient.Weight" />
+                                <span class="input-group-text bg-light text-muted border-start-0">kg</span>
+                            </div>
+                            <ValidationMessage For="@(() => patient.Weight)" class="text-danger fs-8 mt-1" />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="allergies" class="form-label fw-semibold text-secondary fs-7">Alergias Detectadas</label>
+                        <InputTextArea id="allergies" class="form-control shadow-none" placeholder="Especificar alergias a medicamentos o alimentos (dejar vacío si no presenta)" @bind-Value="patient.Allergies" rows="2" />
+                    </div>
+
+                    <div class="mb-0">
+                        <label for="medicalHistory" class="form-label fw-semibold text-secondary fs-7">Historial Médico Relevante</label>
+                        <InputTextArea id="medicalHistory" class="form-control shadow-none" placeholder="Antecedentes quirúrgicos, enfermedades crónicas, etc." @bind-Value="patient.MedicalHistory" rows="3" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECCIÓN 3: Dirección Física -->
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="card-title mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                        <i class="bi bi-geo-alt text-secondary"></i>Dirección de Residencia
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label for="street" class="form-label fw-semibold text-secondary fs-7">Calle / Avenida y Número</label>
+                            <InputText id="street" class="form-control py-2 shadow-none" placeholder="Ej. Calle El Conde #152" @bind-Value="patient.Address.Street" />
+                        </div>
+                        <div class="col-md-4">
+                            <label for="city" class="form-label fw-semibold text-secondary fs-7">Ciudad</label>
+                            <InputText id="city" class="form-control py-2 shadow-none" placeholder="Ej. Santo Domingo" @bind-Value="patient.Address.City" />
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="state" class="form-label fw-semibold text-secondary fs-7">Estado o Provincia</label>
+                            <InputText id="state" class="form-control py-2 shadow-none" placeholder="Ej. Distrito Nacional" @bind-Value="patient.Address.State" />
+                        </div>
+                        <div class="col-md-4">
+                            <label for="postalCode" class="form-label fw-semibold text-secondary fs-7">Código Postal</label>
+                            <InputText id="postalCode" class="form-control py-2 shadow-none" placeholder="Ej. 10210" @bind-Value="patient.Address.PostalCode" />
+                        </div>
+                        <div class="col-md-4">
+                            <label for="country" class="form-label fw-semibold text-secondary fs-7">País</label>
+                            <InputText id="country" class="form-control py-2 shadow-none" placeholder="Ej. República Dominicana" @bind-Value="patient.Address.Country" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones de Acción inferior -->
+            <div class="d-flex justify-content-end gap-2 mt-2 mb-5">
+                <button type="button" class="btn btn-outline-secondary px-4 py-2" @onclick="VolverAListado">
+                    Cancelar
+                </button>
+                <button type="submit" class="btn btn-primary px-4 py-2 shadow-sm d-flex align-items-center gap-2">
+                    <i class="bi bi-save-fill"></i> Registrar Paciente
+                </button>
+            </div>
+
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    private PatientModel patient = new();
+
+    private async Task HandleValidSubmit()
+    {
+        var result = await PatientService.CreatePatientAsync(patient);
+        if (result != null)
+        {
+            VolverAListado();
+        }
+    }
+
+    // Navegación limpia de C# para evitar errores de sintaxis en el HTML
+    private void VolverAListado()
+    {
+        Navigation.NavigateTo("/patients");
+    }
+}

@@ -1,0 +1,187 @@
+﻿@page "/patients/edit/{id:int}"
+@using MediTrack.BlazorWASM.Models
+@using MediTrack.BlazorWASM.Services
+@inject IPatientService PatientService
+@inject NavigationManager Navigation
+
+<div class="container my-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Tarjeta Contenedora Principal -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <h3 class="card-title mb-0 fs-4">
+                        <i class="bi bi-person-fill-gear me-2"></i>Editar Información del Paciente
+                    </h3>
+                </div>
+
+                <div class="card-body p-4">
+                    @if (patient == null)
+                    {
+                        <div class="d-flex flex-column align-items-center justify-content-center py-5">
+                            <div class="spinner-border text-primary mb-3" role="status">
+                                <span class="visually-hidden">Cargando datos del paciente...</span>
+                            </div>
+                            <span class="text-muted">Cargando datos del paciente...</span>
+                        </div>
+                    }
+                    else
+                    {
+                        <EditForm Model="@patient" OnValidSubmit="@HandleValidSubmit">
+                            <DataAnnotationsValidator />
+
+                            @* Resumen de validación elegante con Bootstrap *@
+                            <ValidationSummary class="alert alert-danger list-unstyled" />
+
+                            <!-- SECCIÓN: Información Personal -->
+                            <h5 class="text-secondary border-bottom pb-2 mb-3">
+                                <i class="bi bi-person-card-text me-1"></i> Información Personal
+                            </h5>
+
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label for="firstName" class="form-label fw-semibold">Nombre</label>
+                                    <InputText id="firstName" class="form-control" @bind-Value="patient.FirstName" placeholder="Nombre" />
+                                    <ValidationMessage For="@(() => patient.FirstName)" class="text-danger fs-7 mt-1" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="lastName" class="form-label fw-semibold">Apellido</label>
+                                    <InputText id="lastName" class="form-control" @bind-Value="patient.LastName" placeholder="Apellido" />
+                                    <ValidationMessage For="@(() => patient.LastName)" class="text-danger fs-7 mt-1" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="email" class="form-label fw-semibold">Email</label>
+                                    <InputText id="email" class="form-control" @bind-Value="patient.Email" placeholder="correo@ejemplo.com" />
+                                    <ValidationMessage For="@(() => patient.Email)" class="text-danger fs-7 mt-1" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="phone" class="form-label fw-semibold">Teléfono</label>
+                                    <InputText id="phone" class="form-control" @bind-Value="patient.PhoneNumber" placeholder="Ej: 809-555-0199" />
+                                    <ValidationMessage For="@(() => patient.PhoneNumber)" class="text-danger fs-7 mt-1" />
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="identification" class="form-label fw-semibold">Cédula / ID</label>
+                                    <InputText id="identification" class="form-control" @bind-Value="patient.IdentificationNumber" placeholder="000-0000000-0" />
+                                    <ValidationMessage For="@(() => patient.IdentificationNumber)" class="text-danger fs-7 mt-1" />
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="birthdate" class="form-label fw-semibold">Fecha de Nacimiento</label>
+                                    <InputDate id="birthdate" class="form-control" @bind-Value="patient.DateOfBirth" />
+                                    <ValidationMessage For="@(() => patient.DateOfBirth)" class="text-danger fs-7 mt-1" />
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="gender" class="form-label fw-semibold">Género</label>
+                                    <InputSelect id="gender" class="form-select" @bind-Value="patient.Gender">
+                                        <option value="">Seleccionar...</option>
+                                        <option value="Male">Masculino</option>
+                                        <option value="Female">Femenino</option>
+                                        <option value="Other">Otro</option>
+                                    </InputSelect>
+                                    <ValidationMessage For="@(() => patient.Gender)" class="text-danger fs-7 mt-1" />
+                                </div>
+                            </div>
+
+                            <!-- SECCIÓN: Detalles Físicos y Médicos -->
+                            <h5 class="text-secondary border-bottom pb-2 mb-3">
+                                <i class="bi bi-heart-pulse me-1"></i> Físico e Historial Médico
+                            </h5>
+
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label for="height" class="form-label fw-semibold">Altura (cm)</label>
+                                    <InputNumber id="height" class="form-control" @bind-Value="patient.Height" placeholder="Ej: 175" />
+                                    <ValidationMessage For="@(() => patient.Height)" class="text-danger fs-7 mt-1" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="weight" class="form-label fw-semibold">Peso (kg)</label>
+                                    <InputNumber id="weight" class="form-control" @bind-Value="patient.Weight" placeholder="Ej: 70" />
+                                    <ValidationMessage For="@(() => patient.Weight)" class="text-danger fs-7 mt-1" />
+                                </div>
+                                <div class="col-12">
+                                    <label for="allergies" class="form-label fw-semibold">Alergias</label>
+                                    <InputTextArea id="allergies" class="form-control" @bind-Value="patient.Allergies" rows="2" placeholder="Listado de alergias conocidas (si aplica)" />
+                                </div>
+                                <div class="col-12">
+                                    <label for="medicalHistory" class="form-label fw-semibold">Historial Médico</label>
+                                    <InputTextArea id="medicalHistory" class="form-control" @bind-Value="patient.MedicalHistory" rows="3" placeholder="Condiciones preexistentes, cirugías, tratamientos actuales..." />
+                                </div>
+                            </div>
+
+                            <!-- SECCIÓN: Dirección -->
+                            <h5 class="text-secondary border-bottom pb-2 mb-3">
+                                <i class="bi bi-geo-alt me-1"></i> Dirección de Residencia
+                            </h5>
+
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-8">
+                                    <label for="street" class="form-label fw-semibold">Calle y Número</label>
+                                    <InputText id="street" class="form-control" @bind-Value="patient.Address.Street" placeholder="Calle, apto, número de casa..." />
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="city" class="form-label fw-semibold">Ciudad</label>
+                                    <InputText id="city" class="form-control" @bind-Value="patient.Address.City" placeholder="Ej: Santo Domingo" />
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="state" class="form-label fw-semibold">Estado/Provincia/Región</label>
+                                    <InputText id="state" class="form-control" @bind-Value="patient.Address.State" placeholder="Ej: Distrito Nacional" />
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="postalCode" class="form-label fw-semibold">Código Postal</label>
+                                    <InputText id="postalCode" class="form-control" @bind-Value="patient.Address.PostalCode" placeholder="Ej: 10100" />
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="country" class="form-label fw-semibold">País</label>
+                                    <InputText id="country" class="form-control" @bind-Value="patient.Address.Country" placeholder="Ej: República Dominicana" />
+                                </div>
+                            </div>
+
+                            <!-- SECCIÓN: Botones de Acción -->
+                            <div class="d-flex justify-content-end gap-2 border-top pt-3">
+                                <button type="button" class="btn btn-outline-secondary px-4" @onclick="Cancelar">
+                                    <i class="bi bi-x-lg me-1"></i> Cancelar
+                                </button>
+                                <button type="submit" class="btn btn-primary px-4">
+                                    <i class="bi bi-check-lg me-1"></i> Guardar Cambios
+                                </button>
+                            </div>
+                        </EditForm>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private PatientModel? patient;
+
+    protected override async Task OnInitializedAsync()
+    {
+        patient = await PatientService.GetPatientAsync(Id);
+        if (patient == null)
+        {
+            Navigation.NavigateTo("/patients");
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (patient != null)
+        {
+            var success = await PatientService.UpdatePatientAsync(patient);
+            if (success)
+            {
+                Navigation.NavigateTo("/patients");
+            }
+        }
+    }
+
+    // Método C# limpio para controlar la navegación al cancelar
+    private void Cancelar()
+    {
+        Navigation.NavigateTo("/patients");
+    }
+}

@@ -1,0 +1,156 @@
+﻿@page "/patients"
+@using MediTrack.BlazorWASM.Models
+@using MediTrack.BlazorWASM.Services
+@inject IPatientService PatientService
+@inject NavigationManager Navigation
+
+<div class="container my-4">
+    <!-- Encabezado de la Página con alineación Flexbox -->
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+        <div>
+            <h2 class="mb-1 fw-bold text-dark">
+                <i class="bi bi-people-fill text-primary me-2"></i>Pacientes
+            </h2>
+            <p class="text-muted mb-0">Gestiona, edita y registra el historial clínico de los pacientes de la clínica.</p>
+        </div>
+        <div>
+            <button class="btn btn-primary px-4 py-2 shadow-sm d-flex align-items-center gap-2" @onclick="CrearNuevoPaciente">
+                <i class="bi bi-person-plus-fill fs-5"></i>
+                <span>Nuevo Paciente</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Contenedor Principal (Card) -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            @if (patients == null)
+            {
+                <div class="d-flex flex-column align-items-center justify-content-center py-5">
+                    <div class="spinner-border text-primary mb-3" role="status">
+                        <span class="visually-hidden">Cargando pacientes...</span>
+                    </div>
+                    <span class="text-muted">Obteniendo lista de pacientes...</span>
+                </div>
+            }
+            else if (!patients.Any())
+            {
+                <div class="p-5 text-center">
+                    <div class="mb-3">
+                        <i class="bi bi-person-bounding-box text-muted" style="font-size: 3.5rem;"></i>
+                    </div>
+                    <h5 class="fw-semibold">No hay pacientes registrados</h5>
+                    <p class="text-muted mx-auto" style="max-width: 400px;">
+                        Aún no se ha añadido ningún expediente al sistema. ¡Haz clic en el botón de arriba para registrar al primero!
+                    </p>
+                </div>
+            }
+            else
+            {
+                <!-- Tabla Responsiva y Estilizada -->
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light text-secondary">
+                            <tr>
+                                <th class="ps-4" style="width: 80px;">ID</th>
+                                <th>Nombre Completo</th>
+                                <th>Cédula / ID</th>
+                                <th>Hist. Clínica</th>
+                                <th>Teléfono</th>
+                                <th class="text-center">Edad</th>
+                                <th class="text-end pe-4" style="width: 250px;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var patient in patients)
+                            {
+                                <tr>
+                                    <td class="ps-4 fw-semibold text-muted">#@patient.Id</td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="avatar-placeholder bg-light text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-weight: 600; font-size: 0.85rem;">
+                                                @patient.FirstName[0]@patient.LastName[0]
+                                            </div>
+                                            <span class="fw-semibold text-dark">@patient.FullName</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark border py-1 px-2">@patient.IdentificationNumber</span>
+                                    </td>
+                                    <td>
+                                        <span class="text-primary font-monospace">@patient.MedicalRecordNumber</span>
+                                    </td>
+                                    <td>@patient.PhoneNumber</td>
+                                    <td class="text-center">
+                                        <span class="badge bg-secondary-subtle text-secondary-emphasis rounded-pill px-2 py-1">@patient.Age años</span>
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        <div class="d-inline-flex gap-1">
+                                            <button class="btn btn-sm btn-outline-info d-flex align-items-center gap-1" @onclick="() => VerDetalles(patient.Id)" title="Ver Detalles">
+                                                <i class="bi bi-eye"></i> <span>Ver</span>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-warning d-flex align-items-center gap-1" @onclick="() => IrAEditar(patient.Id)" title="Editar">
+                                                <i class="bi bi-pencil"></i> <span>Editar</span>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1" @onclick="() => DeletePatient(patient.Id)" title="Eliminar">
+                                                <i class="bi bi-trash"></i> <span>Eliminar</span>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<PatientModel>? patients;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPatients();
+    }
+
+    private async Task LoadPatients()
+    {
+        patients = await PatientService.GetPatientsAsync();
+    }
+
+    private async Task DeletePatient(int id)
+    {
+        if (await ConfirmDialog())
+        {
+            var success = await PatientService.DeletePatientAsync(id);
+            if (success)
+            {
+                await LoadPatients();
+            }
+        }
+    }
+
+    private async Task<bool> ConfirmDialog()
+    {
+        // Simulación simple; en producción usar JS interop o componente modal
+        return await Task.FromResult(true);
+    }
+
+    // Métodos de Navegación Limpios de C#
+    private void CrearNuevoPaciente()
+    {
+        Navigation.NavigateTo("/patients/create");
+    }
+
+    private void VerDetalles(int id)
+    {
+        Navigation.NavigateTo($"/patients/{id}");
+    }
+
+    private void IrAEditar(int id)
+    {
+        Navigation.NavigateTo($"/patients/edit/{id}");
+    }
+}

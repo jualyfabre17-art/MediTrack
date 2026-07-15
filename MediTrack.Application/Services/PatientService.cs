@@ -5,7 +5,6 @@ using MediTrack.Application.Validators;
 using MediTrack.Domain.Entities;
 using MediTrack.Domain.Interfaces;
 using MediTrack.Domain.ValueObjects;
-using Microsoft.EntityFrameworkCore;
 
 namespace MediTrack.Application.Services;
 
@@ -37,8 +36,7 @@ public class PatientService : BaseService, IPatientService
             if (patient == null)
                 return ServiceResult<PatientResponseDto>.NotFound("Patient not found");
 
-            var response = MapToResponseDto(patient);
-            return ServiceResult<PatientResponseDto>.Success(response);
+            return ServiceResult<PatientResponseDto>.Success(MapToResponseDto(patient));
         }
         catch (Exception ex)
         {
@@ -50,15 +48,14 @@ public class PatientService : BaseService, IPatientService
     {
         try
         {
-            var patient = await _unitOfWork.Patients
-                .FindAsync(p => p.MedicalRecordNumber.ToString() == medicalRecordNumber);
+            var patients = await _unitOfWork.Patients
+                .FindAsync(p => p.MedicalRecordNumber.Value == medicalRecordNumber);
 
-            var patientFound = patient.FirstOrDefault();
-            if (patientFound == null)
+            var patient = patients.FirstOrDefault();
+            if (patient == null)
                 return ServiceResult<PatientResponseDto>.NotFound("Patient not found");
 
-            var response = MapToResponseDto(patientFound);
-            return ServiceResult<PatientResponseDto>.Success(response);
+            return ServiceResult<PatientResponseDto>.Success(MapToResponseDto(patient));
         }
         catch (Exception ex)
         {
@@ -70,7 +67,6 @@ public class PatientService : BaseService, IPatientService
     {
         try
         {
-            // Validar DTO
             var validator = new PatientValidator(_unitOfWork);
             var validationResult = await validator.ValidateAsync(createDto);
 
@@ -80,16 +76,13 @@ public class PatientService : BaseService, IPatientService
                     validationResult.Errors.Select(e => e.ErrorMessage).ToList());
             }
 
-            // Mapear a entidad
             var patient = MapToEntity(createDto);
             patient.MedicalRecordNumber = MedicalRecordNumber.Generate();
 
-            // Agregar y guardar
             await _unitOfWork.Patients.AddAsync(patient);
             await _unitOfWork.CompleteAsync();
 
-            var response = MapToResponseDto(patient);
-            return ServiceResult<PatientResponseDto>.Success(response, "Patient created successfully");
+            return ServiceResult<PatientResponseDto>.Success(MapToResponseDto(patient), "Patient created successfully");
         }
         catch (Exception ex)
         {
@@ -101,12 +94,10 @@ public class PatientService : BaseService, IPatientService
     {
         try
         {
-            // Obtener paciente existente
             var existingPatient = await _unitOfWork.Patients.GetByIdAsync(updateDto.Id);
             if (existingPatient == null)
                 return ServiceResult<PatientResponseDto>.NotFound("Patient not found");
 
-            // Validar DTO (usar un validador para update)
             var validator = new PatientUpdateValidator(_unitOfWork);
             var validationResult = await validator.ValidateAsync(updateDto);
 
@@ -116,14 +107,11 @@ public class PatientService : BaseService, IPatientService
                     validationResult.Errors.Select(e => e.ErrorMessage).ToList());
             }
 
-            // Actualizar entidad
             UpdateEntity(existingPatient, updateDto);
-
             await _unitOfWork.Patients.UpdateAsync(existingPatient);
             await _unitOfWork.CompleteAsync();
 
-            var response = MapToResponseDto(existingPatient);
-            return ServiceResult<PatientResponseDto>.Success(response, "Patient updated successfully");
+            return ServiceResult<PatientResponseDto>.Success(MapToResponseDto(existingPatient), "Patient updated successfully");
         }
         catch (Exception ex)
         {
@@ -139,7 +127,6 @@ public class PatientService : BaseService, IPatientService
             if (patient == null)
                 return ServiceResult<bool>.NotFound("Patient not found");
 
-            // Soft delete - marcar como inactivo
             patient.IsActive = false;
             patient.UpdatedAt = DateTime.UtcNow;
 
@@ -178,7 +165,6 @@ public class PatientService : BaseService, IPatientService
         }
     }
 
-    // Mapeadores
     private static Patient MapToEntity(PatientCreateDto dto)
     {
         return new Patient
@@ -204,8 +190,7 @@ public class PatientService : BaseService, IPatientService
                 State = dto.Address.State,
                 PostalCode = dto.Address.PostalCode,
                 Country = dto.Address.Country
-            },
-            MedicalRecordNumber = new MedicalRecordNumber()
+            }
         };
     }
 
@@ -247,7 +232,7 @@ public class PatientService : BaseService, IPatientService
             Age = patient.GetAge(),
             Gender = patient.Gender,
             IdentificationNumber = patient.IdentificationNumber,
-            MedicalRecordNumber = patient.MedicalRecordNumber.ToString(),
+            MedicalRecordNumber = patient.MedicalRecordNumber?.ToString() ?? string.Empty,
             BloodType = patient.BloodType.ToString(),
             Height = patient.Height,
             Weight = patient.Weight,

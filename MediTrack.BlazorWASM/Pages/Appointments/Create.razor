@@ -1,0 +1,209 @@
+﻿@page "/appointments/create"
+@using MediTrack.BlazorWASM.Models
+@using MediTrack.BlazorWASM.Services
+@inject IAppointmentService AppointmentService
+@inject IPatientService PatientService
+@inject IDoctorService DoctorService
+@inject NavigationManager Navigation
+
+<div class="container my-4" style="max-width: 850px;">
+    <!-- Botón superior de retroceso -->
+    <div class="mb-3">
+        <button type="button" class="btn btn-link text-decoration-none p-0 d-inline-flex align-items-center gap-1 text-secondary" @onclick="VolverAAgenda">
+            <i class="bi bi-arrow-left"></i> Volver a la agenda de citas
+        </button>
+    </div>
+
+    <!-- Encabezado de la Página -->
+    <div class="mb-4">
+        <h2 class="fw-bold text-dark mb-1">
+            <i class="bi bi-calendar-plus-fill text-primary me-2"></i>Agendar Nueva Cita
+        </h2>
+        <p class="text-muted mb-0">Asigna un paciente con su médico especialista, define la fecha, hora y duración estimada de la consulta.</p>
+    </div>
+
+    @if (patients == null || doctors == null)
+    {
+        <!-- Estado de carga estilizado -->
+        <div class="card border-0 shadow-sm rounded-3 py-5">
+            <div class="d-flex flex-column align-items-center justify-content-center">
+                <div class="spinner-border text-primary mb-3" role="status">
+                    <span class="visually-hidden">Cargando catálogo...</span>
+                </div>
+                <span class="text-muted">Cargando directorio de pacientes y doctores...</span>
+            </div>
+        </div>
+    }
+    else
+    {
+        <EditForm Model="@appointment" OnValidSubmit="@HandleValidSubmit">
+            <DataAnnotationsValidator />
+
+            <!-- Resumen de validaciones elegante -->
+            <div class="mb-4">
+                <ValidationSummary class="alert alert-danger d-flex flex-column gap-1 rounded-3 fs-7 shadow-xs border-0 border-start border-danger border-3" />
+            </div>
+
+            <div class="d-flex flex-column gap-4">
+
+                <!-- SECCIÓN 1: Asignación de Consulta -->
+                <div class="card border-0 shadow-sm rounded-3">
+                    <div class="card-header bg-white border-bottom py-3">
+                        <h5 class="card-title mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                            <i class="bi bi-people text-primary"></i>Personal y Paciente
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-3">
+                            <!-- Selección de Paciente -->
+                            <div class="col-md-6">
+                                <label for="patientId" class="form-label fw-semibold text-secondary fs-7">Paciente</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-person"></i></span>
+                                    <InputSelect id="patientId" class="form-select py-2 shadow-none border-start-0 text-dark" @bind-Value="appointment.PatientId">
+                                        <option value="">Seleccionar paciente...</option>
+                                        @foreach (var patient in patients)
+                                        {
+                                            <option value="@patient.Id">@patient.FullName - @patient.IdentificationNumber</option>
+                                        }
+                                    </InputSelect>
+                                </div>
+                                <ValidationMessage For="@(() => appointment.PatientId)" class="text-danger fs-8 mt-1" />
+                            </div>
+
+                            <!-- Selección de Doctor -->
+                            <div class="col-md-6">
+                                <label for="doctorId" class="form-label fw-semibold text-secondary fs-7">Doctor Especialista</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-heart-pulse"></i></span>
+                                    <InputSelect id="doctorId" class="form-select py-2 shadow-none border-start-0 text-dark" @bind-Value="appointment.DoctorId">
+                                        <option value="">Seleccionar doctor...</option>
+                                        @foreach (var doctor in doctors)
+                                        {
+                                            <option value="@doctor.Id">Dr. @doctor.FullName - @doctor.SpecialtyName</option>
+                                        }
+                                    </InputSelect>
+                                </div>
+                                <ValidationMessage For="@(() => appointment.DoctorId)" class="text-danger fs-8 mt-1" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 2: Fecha, Hora y Tiempo -->
+                <div class="card border-0 shadow-sm rounded-3">
+                    <div class="card-header bg-white border-bottom py-3">
+                        <h5 class="card-title mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                            <i class="bi bi-clock text-success"></i>Fecha y Programación
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-3">
+                            <!-- Fecha -->
+                            <div class="col-md-6">
+                                <label for="appointmentDate" class="form-label fw-semibold text-secondary fs-7">Fecha de la Cita</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-calendar3"></i></span>
+                                    <InputDate id="appointmentDate" class="form-control py-2 shadow-none border-start-0 text-dark" @bind-Value="appointment.AppointmentDateTime" />
+                                </div>
+                                <ValidationMessage For="@(() => appointment.AppointmentDateTime)" class="text-danger fs-8 mt-1" />
+                            </div>
+
+                            <!-- Hora -->
+                            <div class="col-md-3">
+                                <label for="time" class="form-label fw-semibold text-secondary fs-7">Hora</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-alarm"></i></span>
+                                    <InputText id="time" class="form-control py-2 shadow-none border-start-0 text-dark font-monospace" placeholder="HH:mm" @bind-Value="timeString" />
+                                </div>
+                            </div>
+
+                            <!-- Duración -->
+                            <div class="col-md-3">
+                                <label for="duration" class="form-label fw-semibold text-secondary fs-7">Duración Estimada</label>
+                                <div class="input-group">
+                                    <InputNumber id="duration" class="form-control py-2 shadow-none border-end-0 text-dark" @bind-Value="appointment.DurationMinutes" />
+                                    <span class="input-group-text bg-light text-muted border-start-0">min</span>
+                                </div>
+                                <ValidationMessage For="@(() => appointment.DurationMinutes)" class="text-danger fs-8 mt-1" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 3: Detalles Clínicos -->
+                <div class="card border-0 shadow-sm rounded-3">
+                    <div class="card-header bg-white border-bottom py-3">
+                        <h5 class="card-title mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                            <i class="bi bi-journal-text text-secondary"></i>Motivo e Información Adicional
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <!-- Motivo -->
+                        <div class="mb-3">
+                            <label for="reason" class="form-label fw-semibold text-secondary fs-7">Motivo de la Consulta</label>
+                            <InputTextArea id="reason" class="form-control shadow-none text-dark" placeholder="Describa brevemente la razón principal de la visita médica..." @bind-Value="appointment.Reason" rows="2" />
+                            <ValidationMessage For="@(() => appointment.Reason)" class="text-danger fs-8 mt-1" />
+                        </div>
+
+                        <!-- Notas -->
+                        <div class="mb-0">
+                            <label for="notes" class="form-label fw-semibold text-secondary fs-7">Notas Adicionales (Opcional)</label>
+                            <InputTextArea id="notes" class="form-control shadow-none text-dark" placeholder="Observaciones extras, síntomas previos, requerimientos especiales de acceso..." @bind-Value="appointment.Notes" rows="2" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="d-flex justify-content-end gap-2 mt-2 mb-5">
+                    <button type="button" class="btn btn-outline-secondary px-4 py-2" @onclick="VolverAAgenda">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary px-4 py-2 shadow-sm d-flex align-items-center gap-2">
+                        <i class="bi bi-calendar-check-fill"></i> Agendar Cita Médica
+                    </button>
+                </div>
+
+            </div>
+        </EditForm>
+    }
+</div>
+
+@code {
+    private CreateAppointmentModel appointment = new();
+    private List<PatientModel>? patients;
+    private List<DoctorModel>? doctors;
+    private string timeString = DateTime.Now.ToString("HH:mm");
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        patients = await PatientService.GetPatientsAsync();
+        doctors = await DoctorService.GetDoctorsAsync();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        // Combinar fecha y hora
+        if (TimeOnly.TryParse(timeString, out var time))
+        {
+            appointment.AppointmentDateTime = appointment.AppointmentDateTime.Date.Add(time.ToTimeSpan());
+        }
+
+        var result = await AppointmentService.CreateAppointmentAsync(appointment);
+        if (result != null)
+        {
+            VolverAAgenda();
+        }
+    }
+
+    // Navegación encapsulada para evitar problemas sintácticos de comillas dobles en el renderizado
+    private void VolverAAgenda()
+    {
+        Navigation.NavigateTo("/appointments");
+    }
+}

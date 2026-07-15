@@ -1,6 +1,4 @@
-﻿using MediTrack.Domain.Enums;
-
-namespace MediTrack.Application.Dtos.Appointment;
+﻿namespace MediTrack.Application.Dtos.Appointment;
 
 public class AppointmentResponseDto
 {

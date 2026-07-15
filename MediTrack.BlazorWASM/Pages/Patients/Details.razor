@@ -1,0 +1,206 @@
+﻿@page "/patients/{id:int}"
+@using MediTrack.BlazorWASM.Models
+@using MediTrack.BlazorWASM.Services
+@inject IPatientService PatientService
+@inject NavigationManager Navigation
+
+<div class="container my-4">
+    <!-- Botón superior para volver rápido -->
+    <div class="mb-3">
+        <button class="btn btn-link text-decoration-none p-0 d-inline-flex align-items-center gap-1 text-secondary" @onclick="VolverALista">
+            <i class="bi bi-arrow-left"></i> Volver al listado de pacientes
+        </button>
+    </div>
+
+    @if (patient == null)
+    {
+        <div class="d-flex flex-column align-items-center justify-content-center py-5">
+            <div class="spinner-border text-primary mb-3" role="status">
+                <span class="visually-hidden">Cargando expediente...</span>
+            </div>
+            <span class="text-muted">Cargando expediente del paciente...</span>
+        </div>
+    }
+    else
+    {
+        <!-- Ficha de Encabezado Principal -->
+        <div class="card shadow-sm border-0 mb-4 overflow-hidden">
+            <div class="card-body bg-light p-4 border-bottom">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold fs-3 shadow-sm" style="width: 64px; height: 64px;">
+                            @patient.FirstName[0]@patient.LastName[0]
+                        </div>
+                        <div>
+                            <h2 class="mb-1 fw-bold text-dark">@patient.FullName</h2>
+                            <div class="d-flex flex-wrap gap-2 align-items-center">
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-1.5 fs-7">
+                                    <i class="bi bi-hash me-1"></i>Expediente: @patient.MedicalRecordNumber
+                                </span>
+                                <span class="badge bg-secondary-subtle text-secondary-emphasis rounded-pill px-2 py-1 fs-7">
+                                    ID: #@patient.Id
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary px-4 d-inline-flex align-items-center gap-2 shadow-sm" @onclick="IrAEditar">
+                            <i class="bi bi-pencil-square"></i> Editar Expediente
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-4">
+                <div class="row g-4">
+                    <!-- COLUMNA IZQUIERDA: Datos Personales y de Contacto -->
+                    <div class="col-lg-6">
+                        <div class="card h-100 border-0 bg-light-subtle p-3 rounded-3 border-start border-primary border-3 shadow-xs">
+                            <h5 class="fw-bold text-primary mb-3">
+                                <i class="bi bi-person-vcard me-2"></i>Información Personal
+                            </h5>
+                            <hr class="mt-0 mb-3 opacity-10" />
+                            <dl class="row mb-0 g-2">
+                                <dt class="col-sm-4 text-muted fw-normal">Cédula / ID</dt>
+                                <dd class="col-sm-8 fw-semibold text-dark">@patient.IdentificationNumber</dd>
+
+                                <dt class="col-sm-4 text-muted fw-normal">Email</dt>
+                                <dd class="col-sm-8 text-dark">
+                                    <a href="mailto:@patient.Email" class="text-decoration-none">@patient.Email</a>
+                                </dd>
+
+                                <dt class="col-sm-4 text-muted fw-normal">Teléfono</dt>
+                                <dd class="col-sm-8 text-dark">@patient.PhoneNumber</dd>
+
+                                <dt class="col-sm-4 text-muted fw-normal">Fecha de Nacimiento</dt>
+                                <dd class="col-sm-8 text-dark">@patient.DateOfBirth.ToShortDateString()</dd>
+
+                                <dt class="col-sm-4 text-muted fw-normal">Edad</dt>
+                                <dd class="col-sm-8 text-dark">@patient.Age años</dd>
+
+                                <dt class="col-sm-4 text-muted fw-normal">Género</dt>
+                                <dd class="col-sm-8 text-dark">
+                                    <span class="badge bg-dark-subtle text-dark-emphasis px-2 py-1">@patient.Gender</span>
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <!-- COLUMNA DERECHA: Ficha Médica e Historial -->
+                    <div class="col-lg-6">
+                        <div class="card h-100 border-0 bg-light-subtle p-3 rounded-3 border-start border-success border-3 shadow-xs">
+                            <h5 class="fw-bold text-success mb-3">
+                                <i class="bi bi-activity me-2"></i>Ficha Médica
+                            </h5>
+                            <hr class="mt-0 mb-3 opacity-10" />
+
+                            <!-- Badges Rápidos de Salud -->
+                            <div class="d-flex flex-wrap gap-2 mb-3">
+                                <div class="bg-light border rounded px-3 py-2 text-center flex-fill">
+                                    <small class="text-muted d-block text-uppercase font-monospace fs-8">Tipo Sangre</small>
+                                    <span class="fw-bold text-danger fs-5">@patient.BloodType</span>
+                                </div>
+                                <div class="bg-light border rounded px-3 py-2 text-center flex-fill">
+                                    <small class="text-muted d-block text-uppercase font-monospace fs-8">Altura</small>
+                                    <span class="fw-bold text-dark fs-5">@patient.Height <span class="fs-7 text-muted fw-normal">cm</span></span>
+                                </div>
+                                <div class="bg-light border rounded px-3 py-2 text-center flex-fill">
+                                    <small class="text-muted d-block text-uppercase font-monospace fs-8">Peso</small>
+                                    <span class="fw-bold text-dark fs-5">@patient.Weight <span class="fs-7 text-muted fw-normal">kg</span></span>
+                                </div>
+                            </div>
+
+                            <dl class="row mb-0 g-2">
+                                <dt class="col-sm-4 text-muted fw-normal">Alergias</dt>
+                                <dd class="col-sm-8">
+                                    @if (string.IsNullOrEmpty(patient.Allergies))
+                                    {
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2">Ninguna</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2">@patient.Allergies</span>
+                                    }
+                                </dd>
+
+                                <dt class="col-sm-4 text-muted fw-normal">Historial Clínico</dt>
+                                <dd class="col-sm-8 text-dark text-break">
+                                    @(string.IsNullOrEmpty(patient.MedicalHistory) ? "Sin registros previos." : patient.MedicalHistory)
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <!-- FILA INFERIOR IZQUIERDA: Dirección -->
+                    <div class="col-md-6">
+                        <div class="card h-100 border-0 bg-light p-3 rounded-3 shadow-xs">
+                            <h6 class="fw-bold text-dark mb-2">
+                                <i class="bi bi-geo-alt me-2 text-secondary"></i>Dirección de Residencia
+                            </h6>
+                            <p class="text-secondary mb-0 leading-relaxed fs-7">
+                                <span class="d-block text-dark fw-semibold">@patient.Address.Street</span>
+                                @patient.Address.City, @patient.Address.State, @patient.Address.PostalCode<br />
+                                <span class="text-muted fw-medium fs-8">@patient.Address.Country</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- FILA INFERIOR DERECHA: Contacto de Emergencia -->
+                    <div class="col-md-6">
+                        <div class="card h-100 border-0 bg-light p-3 rounded-3 shadow-xs">
+                            <h6 class="fw-bold text-dark mb-2">
+                                <i class="bi bi-telephone-outbound me-2 text-danger"></i>Contacto de Emergencia
+                            </h6>
+                            <p class="mb-0 fs-7">
+                                <span class="d-block fw-semibold text-dark">@patient.EmergencyContactName</span>
+                                <span class="text-muted">Teléfono de contacto:</span> <strong class="text-dark">@patient.EmergencyContactPhone</strong>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer con marcas temporales de auditoría -->
+            <div class="card-footer bg-white border-top py-3">
+                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
+                    <small class="text-muted fs-8">
+                        <i class="bi bi-clock-history me-1"></i>Creado: @patient.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                    </small>
+                    <small class="text-muted fs-8">
+                        <i class="bi bi-arrow-repeat me-1"></i>Última actualización: @(patient.UpdatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "Sin modificaciones")
+                    </small>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private PatientModel? patient;
+
+    protected override async Task OnInitializedAsync()
+    {
+        patient = await PatientService.GetPatientAsync(Id);
+        if (patient == null)
+        {
+            Navigation.NavigateTo("/patients");
+        }
+    }
+
+    // Métodos de navegación limpios de C# para evitar conflictos de comillas en HTML
+    private void VolverALista()
+    {
+        Navigation.NavigateTo("/patients");
+    }
+
+    private void IrAEditar()
+    {
+        if (patient != null)
+        {
+            Navigation.NavigateTo($"/patients/edit/{patient.Id}");
+        }
+    }
+}

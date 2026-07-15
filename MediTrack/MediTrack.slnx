@@ -1,7 +1,0 @@
-<Solution>
-  <Project Path="../MediTrack.Application/MediTrack.Application.csproj" />
-  <Project Path="../MediTrack.Domain/MediTrack.Domain.csproj" />
-  <Project Path="../MediTrack.Infrastructure/MediTrack.Infrastructure.csproj" />
-  <Project Path="../MediTrack.WASM/MediTrack.WASM.csproj" />
-  <Project Path="MediTrack.API.csproj" />
-</Solution>

@@ -1,0 +1,135 @@
+﻿@page "/doctors"
+@using MediTrack.BlazorWASM.Models
+@using MediTrack.BlazorWASM.Services
+@inject IDoctorService DoctorService
+@inject NavigationManager Navigation
+
+<div class="container my-4">
+    <!-- Encabezado de la Página -->
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+        <div>
+            <h2 class="mb-1 fw-bold text-dark">
+                <i class="bi bi-heart-pulse-fill text-info me-2"></i>Doctores
+            </h2>
+            <p class="text-muted mb-0">Administra el cuerpo médico, especialidades y asignaciones de departamentos de la clínica.</p>
+        </div>
+        <div>
+            <button class="btn btn-info text-white px-4 py-2 shadow-sm d-flex align-items-center gap-2" @onclick="CrearNuevoDoctor">
+                <i class="bi bi-person-plus-fill fs-5"></i>
+                <span>Nuevo Doctor</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Contenedor Principal (Card) -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            @if (doctors == null)
+            {
+                <div class="d-flex flex-column align-items-center justify-content-center py-5">
+                    <div class="spinner-border text-info mb-3" role="status">
+                        <span class="visually-hidden">Cargando doctores...</span>
+                    </div>
+                    <span class="text-muted">Obteniendo lista del personal médico...</span>
+                </div>
+            }
+            else if (!doctors.Any())
+            {
+                <div class="p-5 text-center">
+                    <div class="mb-3">
+                        <i class="bi bi-person-x text-muted" style="font-size: 3.5rem;"></i>
+                    </div>
+                    <h5 class="fw-semibold">No hay doctores registrados</h5>
+                    <p class="text-muted mx-auto" style="max-width: 400px;">
+                        Aún no se ha dado de alta a ningún profesional de la salud. ¡Registra al primero para empezar a asignar citas!
+                    </p>
+                </div>
+            }
+            else
+            {
+                <!-- Tabla Responsiva Avanzada -->
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light text-secondary">
+                            <tr>
+                                <th class="ps-4" style="width: 80px;">ID</th>
+                                <th>Nombre Médico</th>
+                                <th>Especialidad</th>
+                                <th>Departamento</th>
+                                <th>Teléfono</th>
+                                <th class="text-end pe-4" style="width: 200px;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var doctor in doctors)
+                            {
+                                <tr>
+                                    <td class="ps-4 fw-semibold text-muted">#@doctor.Id</td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="avatar-placeholder bg-info-subtle text-info rounded-circle d-flex align-items-center justify-content-center fw-semibold" style="width: 34px; height: 34px; font-size: 0.85rem;">
+                                                Dr
+                                            </div>
+                                            <span class="fw-semibold text-dark">@doctor.FullName</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle py-1.5 px-2.5">
+                                            @doctor.SpecialtyName
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="text-secondary fw-medium">@doctor.DepartmentName</span>
+                                    </td>
+                                    <td>
+                                        <span class="text-dark font-monospace">@doctor.PhoneNumber</span>
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        <div class="d-inline-flex gap-1">
+                                            <button class="btn btn-sm btn-outline-info d-flex align-items-center gap-1" @onclick="() => VerDetalles(doctor.Id)" title="Ver Ficha">
+                                                <i class="bi bi-eye"></i> <span>Ver</span>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-warning d-flex align-items-center gap-1" @onclick="() => IrAEditar(doctor.Id)" title="Editar">
+                                                <i class="bi bi-pencil"></i> <span>Editar</span>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<DoctorModel>? doctors;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDoctors();
+    }
+
+    private async Task LoadDoctors()
+    {
+        doctors = await DoctorService.GetDoctorsAsync();
+    }
+
+    // Métodos de Navegación Explícitos
+    private void CrearNuevoDoctor()
+    {
+        Navigation.NavigateTo("/doctors/create");
+    }
+
+    private void VerDetalles(int id)
+    {
+        Navigation.NavigateTo($"/doctors/{id}");
+    }
+
+    private void IrAEditar(int id)
+    {
+        Navigation.NavigateTo($"/doctors/edit/{id}");
+    }
+}

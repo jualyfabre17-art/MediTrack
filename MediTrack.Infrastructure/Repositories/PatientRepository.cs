@@ -30,7 +30,7 @@ public class PatientRepository : BaseRepository<Patient>, IPatientRepository
     public async Task<IEnumerable<Patient>> GetPatientsByMedicalRecordNumberAsync(string medicalRecordNumber)
     {
         return await _dbSet
-            .Where(p => p.MedicalRecordNumber.ToString() == medicalRecordNumber)
+            .Where(p => p.MedicalRecordNumber.Value == medicalRecordNumber)
             .ToListAsync();
     }
 }

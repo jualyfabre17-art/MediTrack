@@ -4,16 +4,24 @@ public class MedicalRecordNumber
 {
     public string Value { get; private set; }
 
-    public MedicalRecordNumber()
-    {
-        Value = GenerateValue();
-    }
-
+    // Para crear desde un valor existente (desde la base de datos)
     public MedicalRecordNumber(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
             throw new ArgumentException("Medical Record Number cannot be empty");
         Value = value;
+    }
+
+    // Constructor privado para EF Core
+    private MedicalRecordNumber()
+    {
+        Value = string.Empty;
+    }
+
+    // Método estático para generar un nuevo número
+    public static MedicalRecordNumber Generate()
+    {
+        return new MedicalRecordNumber(GenerateValue());
     }
 
     private static string GenerateValue()
