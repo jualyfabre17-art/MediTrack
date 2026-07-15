@@ -1,5 +1,4 @@
 ﻿using MediTrack.Domain.Core;
-using MediTrack.Domain.Enums;
 
 namespace MediTrack.Domain.Entities;
 

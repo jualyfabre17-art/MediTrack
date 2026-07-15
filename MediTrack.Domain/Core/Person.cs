@@ -10,7 +10,7 @@ public abstract class Person : BaseEntity
     public string Email { get; set; } = string.Empty;
     public string PhoneNumber { get; set; } = string.Empty;
     public DateTime DateOfBirth { get; set; }
-    public Address Address { get; set; } = new Address();
+    public Address Address { get; set; } = new();
     public string Gender { get; set; } = string.Empty;
 
     public string FullName => $"{FirstName} {LastName}";

@@ -1,4 +1,5 @@
-﻿using MediTrack.Domain.Core;
+﻿using System.Numerics;
+using MediTrack.Domain.Core;
 
 namespace MediTrack.Domain.Entities;
 

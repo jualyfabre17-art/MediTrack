@@ -2,7 +2,7 @@
 using MediTrack.Domain.Entities;
 using MediTrack.Domain.Interfaces;
 using MediTrack.Infrastructure.Context;
-using MediTrack.Infrastructure.Repositories;
+using MediTrack.Infrastructure.Core;
 
 namespace MediTrack.Infrastructure.Core;
 

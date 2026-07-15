@@ -1,0 +1,71 @@
+﻿@inherits LayoutComponentBase
+
+<div class="page d-flex">
+    <!-- BARRA LATERAL (Sidebar) -->
+    <aside class="sidebar bg-dark text-white" style="min-width: 260px; max-width: 260px; min-height: 100vh; z-index: 1000;">
+        <MediTrack.BlazorWASM.Shared.NavMenu />
+    </aside>
+
+    <!-- ÁREA PRINCIPAL DE CONTENIDO -->
+    <div class="main-layout d-flex flex-column flex-grow-1" style="min-height: 100vh; background-color: #f8f9fa;">
+        
+        <!-- BARRA SUPERIOR (Header) -->
+        <header class="navbar navbar-expand navbar-light bg-white border-bottom px-4 py-3 shadow-xs d-flex justify-content-between align-items-center">
+            <!-- Izquierda: Identificador de Sección o Mensaje de Bienvenida -->
+            <div class="d-none d-md-flex align-items-center gap-2">
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle fw-semibold px-2.5 py-1.5 font-monospace fs-8">
+                    v1.2.0-stable
+                </span>
+                <span class="text-muted fs-7">| Sistema de Gestión Médica</span>
+            </div>
+
+            <!-- Derecha: Perfil de Usuario y Enlaces Clínicos -->
+            <div class="d-flex align-items-center gap-3 ms-auto">
+                <!-- Acceso rápido a soporte/documentación de la app -->
+                <a href="/help" class="btn btn-sm btn-link text-decoration-none text-secondary d-none d-sm-inline-flex align-items-center gap-1.5">
+                    <i class="bi bi-question-circle"></i> Ayuda
+                </a>
+
+                <div class="vr d-none d-sm-block text-gray-300" style="height: 20px;"></div>
+
+                <!-- Avatar de Usuario Administrativo / Médico -->
+                <div class="d-flex align-items-center gap-2" style="cursor: pointer;">
+                    <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 35px; height: 35px; font-size: 0.85rem;">
+                        MT
+                    </div>
+                    <div class="d-none d-md-block">
+                        <span class="fw-semibold text-dark fs-7 d-block leading-tight">Personal Administrativo</span>
+                        <small class="text-muted fs-9 d-block" style="margin-top: -3px;">MediTrack Admin</small>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- ÁREA DEL BODY (Vistas Dinámicas) -->
+        <main class="flex-grow-1">
+            <article class="content px-3 px-md-4 py-4" style="max-width: 1400px; margin: 0 auto;">
+                @Body
+            </article>
+        </main>
+        
+        <!-- FOOTER CLÍNICO SUTIL -->
+        <footer class="bg-white border-top text-center py-3 mt-auto">
+            <p class="text-muted fs-8 mb-0">&copy; 2026 MediTrack Dominicana. Todos los derechos reservados.</p>
+        </footer>
+    </div>
+</div>
+
+<!-- INTERFAZ DE ERRORES BLAZOR (Estilizada como Banner Flotante Toast) -->
+<div id="blazor-error-ui" class="alert alert-danger position-fixed bottom-0 end-0 m-4 shadow-lg border-0 border-start border-danger border-4 d-none align-items-center gap-3 p-3 rounded-3" style="z-index: 1050; max-width: 400px;" data-nosnippet>
+    <div class="d-flex align-items-center gap-2.5">
+        <i class="bi bi-exclamation-triangle-fill fs-4 text-danger"></i>
+        <div>
+            <span class="fw-bold text-dark d-block fs-7">Error de Aplicación</span>
+            <span class="text-secondary fs-8">Ha ocurrido un problema inesperado.</span>
+        </div>
+    </div>
+    <div class="ms-auto d-flex align-items-center gap-2">
+        <a href="." class="btn btn-xs btn-outline-danger py-1 px-2.5 fs-8 fw-semibold text-decoration-none">Recargar</a>
+        <button class="dismiss btn-close fs-9" aria-label="Cerrar" onclick="document.getElementById('blazor-error-ui').style.display='none'"></button>
+    </div>
+</div>

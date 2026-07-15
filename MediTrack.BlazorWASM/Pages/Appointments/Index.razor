@@ -1,0 +1,181 @@
+﻿@page "/appointments"
+@using MediTrack.BlazorWASM.Models
+@using MediTrack.BlazorWASM.Services
+@inject IAppointmentService AppointmentService
+@inject NavigationManager Navigation
+
+<div class="container my-4">
+    <!-- Encabezado de la Página -->
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+        <div>
+            <h2 class="mb-1 fw-bold text-dark">
+                <i class="bi bi-calendar-check-fill text-primary me-2"></i>Citas Médicas
+            </h2>
+            <p class="text-muted mb-0">Monitorea la agenda de consultas, estados de asistencia y asignaciones del día.</p>
+        </div>
+        <div>
+            <button class="btn btn-primary px-4 py-2 shadow-sm d-flex align-items-center gap-2" @onclick="IrANuevaCita">
+                <i class="bi bi-calendar-plus fs-5"></i>
+                <span>Nueva Cita</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Contenedor Principal (Card) -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            @if (appointments == null)
+            {
+                <div class="d-flex flex-column align-items-center justify-content-center py-5">
+                    <div class="spinner-border text-primary mb-3" role="status">
+                        <span class="visually-hidden">Cargando agenda...</span>
+                    </div>
+                    <span class="text-muted">Obteniendo listado de citas...</span>
+                </div>
+            }
+            else if (!appointments.Any())
+            {
+                <div class="p-5 text-center">
+                    <div class="mb-3">
+                        <i class="bi bi-calendar-x text-muted" style="font-size: 3.5rem;"></i>
+                    </div>
+                    <h5 class="fw-semibold">No hay citas registradas</h5>
+                    <p class="text-muted mx-auto" style="max-width: 400px;">
+                        No se han programado consultas para hoy ni para fechas próximas. ¡Agenda la primera cita ahora mismo!
+                    </p>
+                </div>
+            }
+            else
+            {
+                <!-- Tabla de Citas -->
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light text-secondary">
+                            <tr>
+                                <th class="ps-4" style="width: 80px;">ID</th>
+                                <th>Paciente</th>
+                                <th>Médico Asignado</th>
+                                <th>Especialidad</th>
+                                <th>Fecha y Hora</th>
+                                <th>Estado</th>
+                                <th class="text-end pe-4" style="width: 180px;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var appointment in appointments)
+                            {
+                                <tr>
+                                    <td class="ps-4 fw-semibold text-muted">#@appointment.Id</td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="avatar-sm bg-light text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 30px; height: 30px; font-size: 0.8rem;">
+                                                <i class="bi bi-person"></i>
+                                            </div>
+                                            <span class="fw-semibold text-dark">@appointment.PatientFullName</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="text-muted fs-8 fw-medium">Dr.</span>
+                                            <span class="text-dark fw-medium">@appointment.DoctorFullName</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-secondary border py-1.5 px-2">@appointment.Specialty</span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex flex-column">
+                                            <span class="fw-semibold text-dark">
+                                                <i class="bi bi-calendar3 text-muted me-1.5 fs-8"></i>@appointment.AppointmentDateTime.ToString("dd/MM/yyyy")
+                                            </span>
+                                            <small class="text-muted">
+                                                <i class="bi bi-clock text-muted me-1.5 fs-8"></i>@appointment.AppointmentDateTime.ToString("HH:mm")
+                                            </small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <!-- Badge con estilo de Bootstrap 5 sutil/pastel -->
+                                        <span class="badge rounded-pill border px-2.5 py-1.5 @GetStatusBadge(appointment.Status)">
+                                            <i class="bi bi-circle-fill me-1 fs-9"></i>@TranslateStatus(appointment.Status)
+                                        </span>
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        @if (appointment.Status != "Cancelled" && appointment.Status != "Completed")
+                                        {
+                                            <button class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1 px-3" @onclick="() => CancelarCita(appointment.Id)" title="Cancelar Cita">
+                                                <i class="bi bi-x-circle"></i> <span>Cancelar</span>
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted fs-8 italic">Sin acciones</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<AppointmentModel>? appointments;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAppointments();
+    }
+
+    private async Task LoadAppointments()
+    {
+        appointments = await AppointmentService.GetAppointmentsAsync();
+    }
+
+    private async Task CancelarCita(int id)
+    {
+        var success = await AppointmentService.CancelAppointmentAsync(id);
+        if (success)
+        {
+            await LoadAppointments();
+        }
+    }
+
+    // Navegación explícita de C#
+    private void IrANuevaCita()
+    {
+        Navigation.NavigateTo("/appointments/create");
+    }
+
+    // Traducción semántica amigable para el usuario
+    private string TranslateStatus(string status)
+    {
+        return status switch
+        {
+            "Scheduled" => "Agendada",
+            "Confirmed" => "Confirmada",
+            "InProgress" => "En Curso",
+            "Completed" => "Completada",
+            "Cancelled" => "Cancelada",
+            "NoShow" => "No Asistió",
+            _ => status
+        };
+    }
+
+    // Mapeo refinado con clases "subtle" (pasteles) de Bootstrap 5
+    private string GetStatusBadge(string status)
+    {
+        return status switch
+        {
+            "Scheduled" => "bg-primary-subtle text-primary border-primary-subtle",
+            "Confirmed" => "bg-success-subtle text-success border-success-subtle",
+            "InProgress" => "bg-warning-subtle text-warning-emphasis border-warning-subtle",
+            "Completed" => "bg-info-subtle text-info-emphasis border-info-subtle",
+            "Cancelled" => "bg-danger-subtle text-danger border-danger-subtle",
+            "NoShow" => "bg-secondary-subtle text-secondary border-secondary-subtle",
+            _ => "bg-secondary-subtle text-secondary border-secondary-subtle"
+        };
+    }
+}

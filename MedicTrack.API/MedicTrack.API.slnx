@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="../MediTrack.Application/MediTrack.Application.csproj" Id="5329f598-0087-42fb-8543-7268e20958ea" />
+  <Project Path="../MediTrack.BlazorWASM/MediTrack.BlazorWASM.csproj" Id="51b20c91-9247-4a73-aa08-3c22cb0a813b" />
+  <Project Path="../MediTrack.Domain/MediTrack.Domain.csproj" Id="e4cd2c46-2530-4edf-af7c-657fd61356c8" />
+  <Project Path="../MediTrack.Infrastructure/MediTrack.Infrastructure.csproj" Id="b1b50f8d-3a5c-4f86-965e-9e6f7764216f" />
+  <Project Path="MedicTrack.API.csproj" />
+</Solution>

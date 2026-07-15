@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MediTrack.Domain.Entities;
+using MediTrack.Domain.ValueObjects;
 
 namespace MediTrack.Infrastructure.Context;
 
@@ -28,16 +29,15 @@ public class MediTrackDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        // Configurar todas las entidades
         ConfigurePatient(modelBuilder);
         ConfigureDoctor(modelBuilder);
         ConfigureAppointment(modelBuilder);
         ConfigureMedicalRecord(modelBuilder);
         ConfigurePrescription(modelBuilder);
-        ConfigureLabTest(modelBuilder);
         ConfigureMedication(modelBuilder);
         ConfigureDepartment(modelBuilder);
         ConfigureSpecialty(modelBuilder);
+        ConfigureLabTest(modelBuilder);
     }
 
     private void ConfigurePatient(ModelBuilder modelBuilder)
@@ -53,7 +53,7 @@ public class MediTrackDbContext : DbContext
             entity.HasIndex(p => p.IdentificationNumber).IsUnique();
             entity.Property(p => p.Gender).HasMaxLength(20);
 
-            // Configurar Address como owned entity
+            // Address como owned entity
             entity.OwnsOne(p => p.Address, address =>
             {
                 address.Property(a => a.Street).HasColumnName("Street").HasMaxLength(200);
@@ -63,7 +63,6 @@ public class MediTrackDbContext : DbContext
                 address.Property(a => a.Country).HasColumnName("Country").HasMaxLength(50);
             });
 
-            // Configurar MedicalRecordNumber como owned entity
             entity.OwnsOne(p => p.MedicalRecordNumber, mrn =>
             {
                 mrn.Property(m => m.Value)
@@ -92,7 +91,7 @@ public class MediTrackDbContext : DbContext
             entity.Property(d => d.Gender).HasMaxLength(20);
             entity.Property(d => d.ConsultationFee).HasPrecision(10, 2);
 
-            // Configurar Address como owned entity para Doctor también
+            // Address como owned entity
             entity.OwnsOne(d => d.Address, address =>
             {
                 address.Property(a => a.Street).HasColumnName("Street").HasMaxLength(200);
@@ -157,7 +156,6 @@ public class MediTrackDbContext : DbContext
                 .HasForeignKey(mr => mr.DoctorId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Relación Many-to-Many con Diagnosis
             entity.HasMany(mr => mr.Diagnoses)
                 .WithMany(d => d.MedicalRecords);
         });
@@ -189,28 +187,6 @@ public class MediTrackDbContext : DbContext
             entity.HasOne(p => p.Medication)
                 .WithMany(m => m.Prescriptions)
                 .HasForeignKey(p => p.MedicationId)
-                .OnDelete(DeleteBehavior.Restrict);
-        });
-    }
-
-    private void ConfigureLabTest(ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<LabTest>(entity =>
-        {
-            entity.HasKey(lt => lt.Id);
-            entity.Property(lt => lt.Name).IsRequired().HasMaxLength(200);
-            entity.Property(lt => lt.Type).HasMaxLength(100);
-            entity.Property(lt => lt.Status).HasConversion<int>();
-            entity.Property(lt => lt.Notes).HasMaxLength(500);
-
-            entity.HasOne(lt => lt.Patient)
-                .WithMany()
-                .HasForeignKey(lt => lt.PatientId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            entity.HasOne(lt => lt.Doctor)
-                .WithMany()
-                .HasForeignKey(lt => lt.DoctorId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
     }
@@ -253,6 +229,28 @@ public class MediTrackDbContext : DbContext
             entity.Property(s => s.Code).HasMaxLength(50);
             entity.HasIndex(s => s.Name).IsUnique();
             entity.HasIndex(s => s.Code).IsUnique();
+        });
+    }
+
+    private void ConfigureLabTest(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<LabTest>(entity =>
+        {
+            entity.HasKey(lt => lt.Id);
+            entity.Property(lt => lt.Name).IsRequired().HasMaxLength(200);
+            entity.Property(lt => lt.Type).HasMaxLength(100);
+            entity.Property(lt => lt.Status).HasConversion<int>();
+            entity.Property(lt => lt.Notes).HasMaxLength(500);
+
+            entity.HasOne(lt => lt.Patient)
+                .WithMany()
+                .HasForeignKey(lt => lt.PatientId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(lt => lt.Doctor)
+                .WithMany()
+                .HasForeignKey(lt => lt.DoctorId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }
