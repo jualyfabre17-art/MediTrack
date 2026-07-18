@@ -4,6 +4,8 @@ namespace MediTrack.Domain.Interfaces;
 
 public interface IUnitOfWork : IDisposable
 {
+    IAppointmentRepository AppointmentRepo { get; }
+    IDoctorRepository DoctorRepo { get; }
     IRepository<Patient> Patients { get; }
     IRepository<Doctor> Doctors { get; }
     IRepository<Appointment> Appointments { get; }
@@ -17,6 +19,7 @@ public interface IUnitOfWork : IDisposable
     IRepository<LabResult> LabResults { get; }
     IRepository<Department> Departments { get; }
     IRepository<Specialty> Specialties { get; }
+  
 
     Task<int> CompleteAsync();
     Task BeginTransactionAsync();

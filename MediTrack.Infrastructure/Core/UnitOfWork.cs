@@ -1,8 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore.Storage;
-using MediTrack.Domain.Entities;
+﻿using MediTrack.Domain.Entities;
 using MediTrack.Domain.Interfaces;
 using MediTrack.Infrastructure.Context;
-using MediTrack.Infrastructure.Core;
+using Microsoft.EntityFrameworkCore.Storage;
+using MediTrack.Infrastructure.Repositories;
 
 namespace MediTrack.Infrastructure.Core;
 
@@ -10,7 +10,9 @@ public class UnitOfWork : IUnitOfWork
 {
     private readonly MediTrackDbContext _context;
     private IDbContextTransaction? _transaction;
+    public MediTrackDbContext Context => _context;
     private bool _disposed;
+    private IDoctorRepository? _doctorRepo;
 
     private IRepository<Patient>? _patients;
     private IRepository<Doctor>? _doctors;
@@ -25,7 +27,14 @@ public class UnitOfWork : IUnitOfWork
     private IRepository<LabResult>? _labResults;
     private IRepository<Department>? _departments;
     private IRepository<Specialty>? _specialties;
+    private AppointmentRepository? _appointmentRepo;
+   
+    
+    public IAppointmentRepository AppointmentRepo =>
+    _appointmentRepo ??= new AppointmentRepository(_context);
 
+    public IDoctorRepository DoctorRepo =>
+    _doctorRepo ??= new DoctorRepository(_context);
     public UnitOfWork(MediTrackDbContext context)
     {
         _context = context;
@@ -33,6 +42,8 @@ public class UnitOfWork : IUnitOfWork
 
     public IRepository<Patient> Patients =>
         _patients ??= new BaseRepository<Patient>(_context);
+
+
 
     public IRepository<Doctor> Doctors =>
         _doctors ??= new BaseRepository<Doctor>(_context);

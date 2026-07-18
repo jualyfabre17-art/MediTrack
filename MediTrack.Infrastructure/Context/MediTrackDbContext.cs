@@ -53,7 +53,6 @@ public class MediTrackDbContext : DbContext
             entity.HasIndex(p => p.IdentificationNumber).IsUnique();
             entity.Property(p => p.Gender).HasMaxLength(20);
 
-            // Address como owned entity
             entity.OwnsOne(p => p.Address, address =>
             {
                 address.Property(a => a.Street).HasColumnName("Street").HasMaxLength(200);
@@ -91,7 +90,6 @@ public class MediTrackDbContext : DbContext
             entity.Property(d => d.Gender).HasMaxLength(20);
             entity.Property(d => d.ConsultationFee).HasPrecision(10, 2);
 
-            // Address como owned entity
             entity.OwnsOne(d => d.Address, address =>
             {
                 address.Property(a => a.Street).HasColumnName("Street").HasMaxLength(200);

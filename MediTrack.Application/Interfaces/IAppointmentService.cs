@@ -1,6 +1,6 @@
 ﻿using MediTrack.Application.Core;
 using MediTrack.Application.Dtos.Appointment;
-
+using MediTrack.Domain.Interfaces;  
 namespace MediTrack.Application.Interfaces;
 
 public interface IAppointmentService

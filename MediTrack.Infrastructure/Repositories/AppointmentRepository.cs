@@ -6,17 +6,20 @@ using MediTrack.Infrastructure.Core;
 
 namespace MediTrack.Infrastructure.Repositories;
 
-public interface IAppointmentRepository : IRepository<Appointment>
-{
-    Task<IEnumerable<Appointment>> GetAppointmentsByDoctorAsync(int doctorId);
-    Task<IEnumerable<Appointment>> GetAppointmentsByPatientAsync(int patientId);
-    Task<bool> IsDoctorAvailableAsync(int doctorId, DateTime dateTime, int durationMinutes);
-}
+
 
 public class AppointmentRepository : BaseRepository<Appointment>, IAppointmentRepository
 {
     public AppointmentRepository(MediTrackDbContext context) : base(context)
     {
+    }
+    public async Task<IEnumerable<Appointment>> GetAppointmentsWithDetailsAsync()
+    {
+        return await _dbSet
+            .Include(a => a.Patient)
+            .Include(a => a.Doctor)
+                .ThenInclude(d => d.Specialty)
+            .ToListAsync();
     }
 
     public async Task<IEnumerable<Appointment>> GetAppointmentsByDoctorAsync(int doctorId)
@@ -54,4 +57,5 @@ public class AppointmentRepository : BaseRepository<Appointment>, IAppointmentRe
 
         return !hasConflict;
     }
+   
 }
