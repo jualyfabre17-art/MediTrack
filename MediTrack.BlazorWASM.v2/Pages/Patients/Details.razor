@@ -1,0 +1,127 @@
+﻿@page "/patients/{id:int}"
+@using MediTrack.BlazorWASM.v2.Models
+@using MediTrack.BlazorWASM.v2.Services
+@inject IPatientService PatientService
+@inject NavigationManager Navigation
+
+<div class="container my-4">
+    <div class="mb-4">
+        <h2 class="fw-bold text-dark">
+            <i class="bi bi-person-vcard-fill text-primary me-2"></i>Detalles del Paciente
+        </h2>
+        <p class="text-muted">Información completa del expediente clínico.</p>
+    </div>
+
+    @if (patient == null)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="text-muted mt-2">Cargando información...</p>
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="fw-bold mb-0">@patient.FullName</h3>
+                    <small class="text-muted">Historia Clínica: <strong>@patient.MedicalRecordNumber</strong></small>
+                </div>
+                <div>
+                    <button class="btn btn-primary me-2" @onclick="() => Navigation.NavigateTo($'/patients/edit/{patient.Id}')">
+                        <i class="bi bi-pencil"></i> Editar
+                    </button>
+                    <button class="btn btn-outline-secondary" @onclick="() => Navigation.NavigateTo('/patients')">
+                        <i class="bi bi-arrow-left"></i> Volver
+                    </button>
+                </div>
+            </div>
+            <div class="card-body p-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5 class="fw-semibold text-secondary border-bottom pb-2">Información Personal</h5>
+                        <dl class="row mt-3">
+                            <dt class="col-sm-4">ID</dt>
+                            <dd class="col-sm-8">@patient.Id</dd>
+                            <dt class="col-sm-4">Cédula</dt>
+                            <dd class="col-sm-8">@patient.IdentificationNumber</dd>
+                            <dt class="col-sm-4">Correo Electrónico</dt>
+                            <dd class="col-sm-8">@patient.Email</dd>
+                            <dt class="col-sm-4">Teléfono</dt>
+                            <dd class="col-sm-8">@patient.PhoneNumber</dd>
+                            <dt class="col-sm-4">Fecha de Nacimiento</dt>
+                            <dd class="col-sm-8">@patient.DateOfBirth.ToShortDateString()</dd>
+                            <dt class="col-sm-4">Edad</dt>
+                            <dd class="col-sm-8">@patient.Age años</dd>
+                            <dt class="col-sm-4">Género</dt>
+                            <dd class="col-sm-8">@patient.Gender</dd>
+                            <dt class="col-sm-4">Tipo de Sangre</dt>
+                            <dd class="col-sm-8">@patient.BloodType</dd>
+                        </dl>
+                    </div>
+                    <div class="col-md-6">
+                        <h5 class="fw-semibold text-secondary border-bottom pb-2">Información Médica</h5>
+                        <dl class="row mt-3">
+                            <dt class="col-sm-4">Altura</dt>
+                            <dd class="col-sm-8">@patient.Height cm</dd>
+                            <dt class="col-sm-4">Peso</dt>
+                            <dd class="col-sm-8">@patient.Weight kg</dd>
+                            <dt class="col-sm-4">Alergias</dt>
+                            <dd class="col-sm-8">@(!string.IsNullOrEmpty(patient.Allergies) ? patient.Allergies : "Ninguna")</dd>
+                            <dt class="col-sm-4">Historial Médico</dt>
+                            <dd class="col-sm-8">@(!string.IsNullOrEmpty(patient.MedicalHistory) ? patient.MedicalHistory : "No registrado")</dd>
+                            <dt class="col-sm-4">Contacto de Emergencia</dt>
+                            <dd class="col-sm-8">@patient.EmergencyContactName - @patient.EmergencyContactPhone</dd>
+                        </dl>
+                    </div>
+                </div>
+                <hr />
+                <div class="row">
+                    <div class="col-12">
+                        <h5 class="fw-semibold text-secondary">Dirección de Residencia</h5>
+                        <p class="mt-2">
+                            @patient.Address.Street, @patient.Address.City<br />
+                            @patient.Address.State, @patient.Address.PostalCode<br />
+                            @patient.Address.Country
+                        </p>
+                    </div>
+                </div>
+                <hr />
+                <div class="row">
+                    <div class="col-12">
+                        <small class="text-muted">
+                            <i class="bi bi-clock"></i> Creado: @patient.CreatedAt.ToString("dd/MM/yyyy HH:mm") |
+                            Última actualización: @(patient.UpdatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "Nunca")
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private PatientModel? patient;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            patient = await PatientService.GetPatientAsync(Id);
+            if (patient == null)
+            {
+                Navigation.NavigateTo("/patients");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"ERROR en Details: {ex.Message}");
+            Navigation.NavigateTo("/patients");
+        }
+    }
+}

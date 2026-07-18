@@ -31,23 +31,21 @@ public class PatientUpdateValidator : AbstractValidator<PatientUpdateDto>
             .MaximumLength(20).WithMessage("Phone number must not exceed 20 characters");
 
         RuleFor(p => p.IdentificationNumber)
-            .NotEmpty().WithMessage("Identification number is required")
-            .MaximumLength(20).WithMessage("Identification number must not exceed 20 characters")
-            .MustAsync(BeUniqueIdentificationNumber)
+             .NotEmpty().WithMessage("Identification number is required.");
+
+        RuleFor(p => p)
+            .MustAsync(async (dto, cancellation) =>
+            {
+                var existingPatients = await _unitOfWork.Patients.FindAsync(p =>
+                    p.IdentificationNumber == dto.IdentificationNumber && p.Id != dto.Id);
+
+                return !existingPatients.Any();
+            })
+            .WithName(nameof(PatientUpdateDto.IdentificationNumber))
             .WithMessage("Identification number already exists");
-
-        RuleFor(p => p.DateOfBirth)
-            .Must(BeValidAge)
-            .WithMessage("Patient must be at least 18 years old");
-
-        RuleFor(p => p.Height)
-            .GreaterThan(0).WithMessage("Height must be greater than 0")
-            .LessThan(300).WithMessage("Height must be less than 300 cm");
-
-        RuleFor(p => p.Weight)
-            .GreaterThan(0).WithMessage("Weight must be greater than 0")
-            .LessThan(500).WithMessage("Weight must be less than 500 kg");
     }
+
+
 
     private async Task<bool> BeUniqueIdentificationNumber(string identificationNumber, CancellationToken cancellationToken)
     {

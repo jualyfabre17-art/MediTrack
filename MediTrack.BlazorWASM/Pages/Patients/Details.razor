@@ -5,7 +5,7 @@
 @inject NavigationManager Navigation
 
 <div class="container my-4">
-    <!-- Botón superior para volver rápido -->
+    
     <div class="mb-3">
         <button class="btn btn-link text-decoration-none p-0 d-inline-flex align-items-center gap-1 text-secondary" @onclick="VolverALista">
             <i class="bi bi-arrow-left"></i> Volver al listado de pacientes
@@ -23,7 +23,6 @@
     }
     else
     {
-        <!-- Ficha de Encabezado Principal -->
         <div class="card shadow-sm border-0 mb-4 overflow-hidden">
             <div class="card-body bg-light p-4 border-bottom">
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
@@ -53,7 +52,7 @@
 
             <div class="card-body p-4">
                 <div class="row g-4">
-                    <!-- COLUMNA IZQUIERDA: Datos Personales y de Contacto -->
+                    
                     <div class="col-lg-6">
                         <div class="card h-100 border-0 bg-light-subtle p-3 rounded-3 border-start border-primary border-3 shadow-xs">
                             <h5 class="fw-bold text-primary mb-3">
@@ -82,11 +81,17 @@
                                 <dd class="col-sm-8 text-dark">
                                     <span class="badge bg-dark-subtle text-dark-emphasis px-2 py-1">@patient.Gender</span>
                                 </dd>
+                                <dt class="col-sm-4">Tipo de Sangre</dt>
+                                <dd class="col-sm-8">@patient.BloodType</dd>
+
+                                <dt class="col-sm-4">Contacto de Emergencia</dt>
+                                <dd class="col-sm-8">@patient.EmergencyContactName - @patient.EmergencyContactPhone</dd>
                             </dl>
                         </div>
                     </div>
 
-                    <!-- COLUMNA DERECHA: Ficha Médica e Historial -->
+
+
                     <div class="col-lg-6">
                         <div class="card h-100 border-0 bg-light-subtle p-3 rounded-3 border-start border-success border-3 shadow-xs">
                             <h5 class="fw-bold text-success mb-3">
@@ -94,7 +99,6 @@
                             </h5>
                             <hr class="mt-0 mb-3 opacity-10" />
 
-                            <!-- Badges Rápidos de Salud -->
                             <div class="d-flex flex-wrap gap-2 mb-3">
                                 <div class="bg-light border rounded px-3 py-2 text-center flex-fill">
                                     <small class="text-muted d-block text-uppercase font-monospace fs-8">Tipo Sangre</small>
@@ -131,7 +135,6 @@
                         </div>
                     </div>
 
-                    <!-- FILA INFERIOR IZQUIERDA: Dirección -->
                     <div class="col-md-6">
                         <div class="card h-100 border-0 bg-light p-3 rounded-3 shadow-xs">
                             <h6 class="fw-bold text-dark mb-2">
@@ -145,7 +148,6 @@
                         </div>
                     </div>
 
-                    <!-- FILA INFERIOR DERECHA: Contacto de Emergencia -->
                     <div class="col-md-6">
                         <div class="card h-100 border-0 bg-light p-3 rounded-3 shadow-xs">
                             <h6 class="fw-bold text-dark mb-2">
@@ -160,7 +162,6 @@
                 </div>
             </div>
 
-            <!-- Footer con marcas temporales de auditoría -->
             <div class="card-footer bg-white border-top py-3">
                 <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
                     <small class="text-muted fs-8">
@@ -190,7 +191,6 @@
         }
     }
 
-    // Métodos de navegación limpios de C# para evitar conflictos de comillas en HTML
     private void VolverALista()
     {
         Navigation.NavigateTo("/patients");

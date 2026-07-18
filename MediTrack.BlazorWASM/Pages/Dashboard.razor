@@ -7,7 +7,7 @@
 @inject NavigationManager Navigation
 
 <div class="container-fluid my-4 px-4">
-    <!-- Título y Presentación del Dashboard -->
+    
     <div class="mb-4">
         <h2 class="fw-bold text-dark mb-1">
             <i class="bi bi-grid-1x2-fill text-primary me-2"></i>Panel de Control
@@ -15,9 +15,17 @@
         <p class="text-muted mb-0">Bienvenido a MediTrack. Visualiza de un vistazo las estadísticas clave de hoy y accede a las acciones rápidas.</p>
     </div>
 
-    <!-- SECCIÓN: Tarjetas de Estadísticas (KPI Cards) -->
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <strong>Error:</strong> @errorMessage
+            <button type="button" class="btn-close" @onclick="() => errorMessage = string.Empty" aria-label="Close"></button>
+        </div>
+    }
+
     <div class="row g-3 mb-4">
-        <!-- Tarjeta: Total Pacientes -->
+        
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="card border-0 shadow-sm h-100 rounded-3 position-relative overflow-hidden" style="background: linear-gradient(135deg, #0d6efd, #0a58ca); color: white;">
                 <div class="card-body p-4 d-flex align-items-center justify-content-between">
@@ -32,9 +40,8 @@
             </div>
         </div>
 
-        <!-- Tarjeta: Citas de Hoy -->
         <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card border-0 shadow-sm h-100 rounded-3 position-relative overflow-hidden" style="background: linear-gradient(135deg, #198754, #146c43); color: white;">
+            <div class="card border-0 shadow-sm h-100 rounded-3 position-relative overflow-hidden" style="background: linear-gradient(135deg, #0d6efd, #0a58ca); color: white;">
                 <div class="card-body p-4 d-flex align-items-center justify-content-between">
                     <div>
                         <span class="text-white-50 text-uppercase fw-semibold font-monospace fs-8 d-block mb-1">Citas de Hoy</span>
@@ -47,24 +54,22 @@
             </div>
         </div>
 
-        <!-- Tarjeta: Citas Pendientes -->
         <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card border-0 shadow-sm h-100 rounded-3 position-relative overflow-hidden" style="background: linear-gradient(135deg, #ffc107, #ca9300); color: white;">
+            <div class="card border-0 shadow-sm h-100 rounded-3 position-relative overflow-hidden" style="background: linear-gradient(135deg, #0dcaf0, #0a58ca); color: white;">
                 <div class="card-body p-4 d-flex align-items-center justify-content-between">
                     <div>
-                        <span class="text-dark-50 text-uppercase fw-semibold font-monospace fs-8 d-block mb-1" style="color: rgba(0,0,0,0.5);">Citas Pendientes</span>
+                        <span class="text-dark-50 text-uppercase fw-semibold font-monospace fs-8 d-block mb-1" );">Citas Pendientes</span>
                         <h3 class="display-5 fw-bold mb-0 text-dark">@pendingAppointments</h3>
                     </div>
-                    <div class="rounded-circle p-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px; background-color: rgba(0, 0, 0, 0.08);">
+                    <div class="rounded-circle p-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px; background-color: rgba(255, 255, 255, 0.15);;">
                         <i class="bi bi-calendar-event-fill fs-3 text-dark"></i>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Tarjeta: Doctores Activos -->
         <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card border-0 shadow-sm h-100 rounded-3 position-relative overflow-hidden" style="background: linear-gradient(135deg, #0dcaf0, #0aa2c0); color: white;">
+            <div class="card border-0 shadow-sm h-100 rounded-3 position-relative overflow-hidden" style="background: linear-gradient(135deg, #0dcaf0, #0a58ca); color: white;">
                 <div class="card-body p-4 d-flex align-items-center justify-content-between">
                     <div>
                         <span class="text-white-50 text-uppercase fw-semibold font-monospace fs-8 d-block mb-1">Doctores Activos</span>
@@ -78,9 +83,8 @@
         </div>
     </div>
 
-    <!-- SECCIÓN DE ACCIONES Y LISTADOS -->
     <div class="row g-4">
-        <!-- Columna 1: Acciones Rápidas -->
+        
         <div class="col-lg-6">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-header bg-white border-bottom py-3">
@@ -97,7 +101,7 @@
                             <i class="bi bi-chevron-right fs-5"></i>
                         </button>
 
-                        <button class="btn btn-success btn-lg py-3 px-4 d-flex align-items-center justify-content-between rounded-3 border-0 shadow-xs" @onclick="IrACrearCita" style="background-color: #198754;">
+                        <button class="btn btn-success btn-lg py-3 px-4 d-flex align-items-center justify-content-between rounded-3 border-0 shadow-xs" @onclick="IrACrearCita" style="background-color: dodgerblue;">
                             <span class="d-flex align-items-center gap-2 fw-semibold">
                                 <i class="bi bi-calendar-plus-fill fs-4"></i>Agendar Nueva Cita Médica
                             </span>
@@ -115,7 +119,6 @@
             </div>
         </div>
 
-        <!-- Columna 2: Últimos Pacientes Registrados -->
         <div class="col-lg-6">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-header bg-white border-bottom py-3">
@@ -174,25 +177,40 @@
     private int pendingAppointments = 0;
     private int activeDoctors = 0;
     private List<PatientModel>? recentPatients;
+    private string errorMessage = string.Empty; 
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadDashboardData();
+        try
+        {
+            await LoadDashboardData();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al cargar el panel: {ex.Message}";
+            Console.WriteLine($"ERROR en Dashboard: {ex.Message}");
+            Console.WriteLine(ex.StackTrace);
+        }
     }
 
     private async Task LoadDashboardData()
     {
-        var patients = await PatientService.GetPatientsAsync();
-        totalPatients = patients.Count;
-        recentPatients = patients.OrderByDescending(p => p.CreatedAt).Take(5).ToList();
+        try
+        {
+            var patients = await PatientService.GetPatientsAsync();
+            totalPatients = patients.Count;
+            recentPatients = patients.OrderByDescending(p => p.CreatedAt).Take(5).ToList();
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Error al obtener pacientes: {ex.Message}", ex);
+        }
 
-        // Datos simulados
         todayAppointments = 8;
         pendingAppointments = 12;
         activeDoctors = 15;
     }
 
-    // Métodos de navegación limpios de C# para eliminar problemas de comillas en HTML
     private void IrACrearPaciente()
     {
         Navigation.NavigateTo("/patients/create");

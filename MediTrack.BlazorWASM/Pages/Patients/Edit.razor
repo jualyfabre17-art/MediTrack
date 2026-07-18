@@ -7,7 +7,7 @@
 <div class="container my-4">
     <div class="row justify-content-center">
         <div class="col-lg-10">
-            <!-- Tarjeta Contenedora Principal -->
+            
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-primary text-white py-3">
                     <h3 class="card-title mb-0 fs-4">
@@ -33,7 +33,7 @@
                             @* Resumen de validación elegante con Bootstrap *@
                             <ValidationSummary class="alert alert-danger list-unstyled" />
 
-                            <!-- SECCIÓN: Información Personal -->
+                            
                             <h5 class="text-secondary border-bottom pb-2 mb-3">
                                 <i class="bi bi-person-card-text me-1"></i> Información Personal
                             </h5>
@@ -81,7 +81,7 @@
                                 </div>
                             </div>
 
-                            <!-- SECCIÓN: Detalles Físicos y Médicos -->
+                            
                             <h5 class="text-secondary border-bottom pb-2 mb-3">
                                 <i class="bi bi-heart-pulse me-1"></i> Físico e Historial Médico
                             </h5>
@@ -107,7 +107,42 @@
                                 </div>
                             </div>
 
-                            <!-- SECCIÓN: Dirección -->
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="bloodType" class="form-label">Tipo de Sangre</label>
+                                        <InputSelect id="bloodType" class="form-select" @bind-Value="patient.BloodType">
+                                            <option value="">Seleccionar...</option>
+                                            <option value="1">A+</option>
+                                            <option value="2">A-</option>
+                                            <option value="3">B+</option>
+                                            <option value="4">B-</option>
+                                            <option value="5">AB+</option>
+                                            <option value="6">AB-</option>
+                                            <option value="7">O+</option>
+                                            <option value="8">O-</option>
+                                        </InputSelect>
+                                        <ValidationMessage For="@(() => patient.BloodType)" />
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="emergencyContactName" class="form-label">Contacto de Emergencia (Nombre)</label>
+                                        <InputText id="emergencyContactName" class="form-control" @bind-Value="patient.EmergencyContactName" />
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="emergencyContactPhone" class="form-label">Contacto de Emergencia (Teléfono)</label>
+                                        <InputText id="emergencyContactPhone" class="form-control" @bind-Value="patient.EmergencyContactPhone" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            
+
+                            
                             <h5 class="text-secondary border-bottom pb-2 mb-3">
                                 <i class="bi bi-geo-alt me-1"></i> Dirección de Residencia
                             </h5>
@@ -135,7 +170,6 @@
                                 </div>
                             </div>
 
-                            <!-- SECCIÓN: Botones de Acción -->
                             <div class="d-flex justify-content-end gap-2 border-top pt-3">
                                 <button type="button" class="btn btn-outline-secondary px-4" @onclick="Cancelar">
                                     <i class="bi bi-x-lg me-1"></i> Cancelar
@@ -179,7 +213,6 @@
         }
     }
 
-    // Método C# limpio para controlar la navegación al cancelar
     private void Cancelar()
     {
         Navigation.NavigateTo("/patients");

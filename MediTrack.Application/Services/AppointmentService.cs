@@ -17,7 +17,7 @@ public class AppointmentService : BaseService, IAppointmentService
     {
         try
         {
-            var appointments = await _unitOfWork.Appointments.GetAllAsync();
+            var appointments = await _unitOfWork.AppointmentRepo.GetAppointmentsWithDetailsAsync();
             var response = appointments.Select(a => MapToResponseDto(a));
             return ServiceResult<IEnumerable<AppointmentResponseDto>>.Success(response);
         }
@@ -188,6 +188,7 @@ public class AppointmentService : BaseService, IAppointmentService
             return HandleError<bool>($"Error cancelling appointment: {ex.Message}");
         }
     }
+
 
     
 

@@ -17,7 +17,7 @@ public class DoctorService : BaseService, IDoctorService
     {
         try
         {
-            var doctors = await _unitOfWork.Doctors.GetAllAsync();
+            var doctors = await _unitOfWork.DoctorRepo.GetDoctorsWithDetailsAsync();
             var response = doctors.Select(d => MapToResponseDto(d));
             return ServiceResult<IEnumerable<DoctorResponseDto>>.Success(response);
         }
@@ -159,7 +159,6 @@ public class DoctorService : BaseService, IDoctorService
         }
     }
 
-    // ============ MÉTODOS PRIVADOS DE MAPEO ============
 
     private static Doctor MapToEntity(DoctorCreateDto dto)
     {
